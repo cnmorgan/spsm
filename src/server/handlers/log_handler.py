@@ -38,8 +38,15 @@ class LogHandler:
   def log_to_string(self, log):
     return f"[{log[0]} {log[2].name}] [{log[3]}]: {log[1]}\n"
 
+  def get_log_as_strings(self):
+    log = []
+    for line in self.log:
+      log.append({'content': self.log_to_string(line), 'color': line[2].value})
+      
+    return log
+  
   def dump_log(self):
-    logs_dir = 'logs/spsm'
+    logs_dir = 'spsm/logs'
     
     if not os.path.exists(logs_dir):
       os.makedirs(logs_dir)

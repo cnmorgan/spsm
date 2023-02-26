@@ -45,6 +45,8 @@ class ServerWrapper:
     
     self.screen_handler.connect_input_handler(self.input_handler)
     
+    self.screen_handler.connect_log_handling(self.log_handler)
+    
 
   def activate(self):
     try:
@@ -100,6 +102,12 @@ class ServerWrapper:
       except Exception as e:
         self.error_handler.handle_fatal(e)
 
+  def prepare_for_attach(self):
+    self.screen_handler.prepare_for_attach()
+
+  def prepare_for_detach(self):
+    self.screen_handler.prepare_for_detach()
+
   def append_log(self, message, source="Main Thread", severity=LogLevels.INFO):
     self.log_handler.append(message, source=source, severity=severity)
 
@@ -127,7 +135,7 @@ class ServerWrapper:
             source = 'Server'
           self.append_log(message, source=source, severity=LogLevels[severity.upper()])
         for output in self.server_process.stderr:
-          self.append_log(output)
+          self.append_log(output, source="Server", severity=LogLevels.FATAL)
 
   def reload_config(self):
     self.append_log("Reloading config...")
@@ -138,6 +146,8 @@ class ServerWrapper:
 
   def list_commands(self):
     for command, module in self.input_handler.command_modules.items():
+      if not hasattr(module, 'summary'):
+        continue
       self.append_log(f"{command} -- {module.summary()}")
 
 

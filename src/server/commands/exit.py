@@ -3,6 +3,7 @@ import subprocess
 def run(wrapper, *args):
   screen_name = wrapper.config['screen_name']
   wrapper.screen_handler.clear_input_window()
+  wrapper.prepare_for_detach()
   subprocess.run(['screen', '-d', screen_name])
 
   

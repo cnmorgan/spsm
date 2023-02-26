@@ -4,7 +4,7 @@ def run(wrapper, *args):
     return
   command = args[0]
   
-  if command and command in wrapper.input_handler.command_modules.keys():
+  if command and command in wrapper.input_handler.command_modules.keys() and hasattr(wrapper.input_handler.command_modules[command], 'help'):
     wrapper.append_log(f"---- {command.upper()} ----")
     wrapper.input_handler.command_modules[command].help(wrapper)
     wrapper.append_log(f"-----{'-'*len(command)}-----")

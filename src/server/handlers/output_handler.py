@@ -31,6 +31,7 @@ class OutputHandler:
           while not self.output_queue.empty():
             output = self.output_queue.get()
             self.screen_handler.append_output(output[0], output[1])
+            time.sleep(0.001)
         else:
           time.sleep(0.005)
 

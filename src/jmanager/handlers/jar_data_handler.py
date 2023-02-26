@@ -7,41 +7,71 @@ from utils import io
 class JarDataHandler():
   def __init__(self):
     self.config = load_config()
-    self.jar_data = self.load_jar_data()
+    self.jars_data = self.load_jar_data()
     
   def touches_jar_data(func):
     def touch_and_save(self, *args, **kwargs):
-      func(args, kwargs)
+      val = func(self, *args, **kwargs)
       self.save_jar_data()
+      return val
     return touch_and_save
   
-  @touches_jar_data()
+  @touches_jar_data
   def upsert_jar_data(self, name, type, url):
     if type != 'server' and type != 'plugin':
       print("Jar must be either of type 'server' or 'plugin'")
-      return
+      return -1
     
     jar_data = {}
     
-    jar_data['url'] = url
-    target = f'./jars/plugins/{name}/'
+    target = f'spsm/jars/plugins/{name}/'
     if type == 'server':
-      target = './jars/server/'
+      target = 'spsm/jars/server/'
       
+    jar_data['url'] = url
     jar_data['target'] = target
+    jar_data['type'] = type
+    jar_data['latest_filename'] = None
     
-    self.jar_data[name] = jar_data
+    self.jars_data['data'][name] = jar_data
     
+  @touches_jar_data
+  def remove_jar_data(self, name):
+    del self.jars_data['data'][name]
+  
+  @touches_jar_data
+  def update_jar_filename(self, jar_name, filename):
+    self.jars_data['data'][jar_name]['latest_filename'] = filename
+  
+  def init_jar_data(self, path, filename):
+    obj = {}
+    obj['version'] = 1
+    obj['data'] = {}
+    
+    io.write_json_file(path, filename, obj)
+  
+  def jar_names(self):
+    return self.jars_data['data'].keys()
+  
+  def fetch_jar_data(self, name):
+    return self.jars_data['data'][name]
+  
   def load_jar_data(self):
-    path = self.config['jar_data_path'] if 'jar_files_path' in self.config.keys() else 'jardata.json'
-    if not os.path.exists(path):
-      io.write_json_file(path, {})
+    path = self.config['jar_data_path'] if 'jar_data_path' in self.config.keys() else './spsm/jardata'
+    filename = self.config['jar_data_filename'] if 'jar_data_filename' in self.config.keys() else 'jardata.json'
+    file_path = os.path.join(path, filename)
+    if not os.path.exists(file_path):
+      self.init_jar_data(path, filename)
     
-    return io.read_json_file(path)
+    return io.read_json_file(file_path)
     
   def save_jar_data(self):
-    path = self.config['jar_data_path'] if 'jar_files_path' in self.config.keys() else 'jardata.json'
-    io.write_json_file(path, self.jar_data)
-      
-  
-  
+    path = self.config['jar_data_path'] if 'jar_data_path' in self.config.keys() else './spsm/jardata'
+    filename = self.config['jar_data_filename'] if 'jar_data_filename' in self.config.keys() else 'jardata.json'
+    file_path = os.path.join(path, filename)
+    if os.path.exists(file_path):
+      archive_path = f"{file_path[:-5]}-{self.jars_data['version']}{file_path[-5:]}"
+      os.rename(file_path, archive_path)
+      self.jars_data['version'] += 1
+    io.write_json_file(path, filename, self.jars_data)
+    

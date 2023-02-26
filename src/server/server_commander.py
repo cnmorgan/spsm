@@ -29,8 +29,6 @@ class ServerCommander:
         """
         Activate the server using a detached screen with the ServerWrapper activated.
         """
-        if debug:
-            print("Activating in debug mode!")
         
         screen_name = self.config['screen_name']
 
@@ -42,6 +40,7 @@ class ServerCommander:
         server_wrapper_cmd = f"spsm_server" if not debug else "../venv/bin/spsm_server"
         screen_cmd = f"screen -dmS {screen_name} {server_wrapper_cmd}"
         if debug:
+            print("Activating in debug mode!")
             f = open('spsm-debug.txt', 'w')
             subprocess.call(screen_cmd, shell=True, stdout=f, stderr=f)
         else:
@@ -72,10 +71,15 @@ class ServerCommander:
         """
         Attach to the server's screen session.
         """
+        if not self.server_is_active():
+            print('Server has not been activated.')
+            return
         screen_name = self.config['screen_name']
         try:
-            # subprocess.run(['screen', '-S', screen_name, '-p', '0', '-X', 'stuff', "refresh^M"])
-            subprocess.run(['screen', '-r', screen_name], check=True)
+            process = subprocess.Popen(['screen', '-r', screen_name])
+            with open(self.fifo_output_path, 'w') as pipe:
+                pipe.write('prepare_for_attach')
+            process.wait()
         except subprocess.CalledProcessError:
             print(f"No screen found with name {screen_name}")
 

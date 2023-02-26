@@ -1,3 +1,4 @@
+from cmath import log
 import curses
 
 from threading import Lock
@@ -9,19 +10,30 @@ class ScreenHandler:
 
     self.stdscr = None
     self.input_window = None
+    
     self.output_window = None
+    self.output_window_h = 0
+    self.output_content_h = 0
+    self.output_content_s_line = 0
+    self.next_output_line = 1
+    self.output_view_h = 0
+    
     self.screen_h = 0
     self.screen_w = 0
     
     self.output_scroll_pos = 0
-    self.prompt_string = " spsm >>"
+    self.prompt_string = " spsm >> "
     
     self.current_input = []
     
     self.error_handler = None
     self.input_handler = None
+    self.log_handler = None
     
     self.screen_lock = Lock()
+  
+  def connect_log_handling(self, log_handler):
+    self.log_handler = log_handler
   
   def connect_error_handling(self, error_handler):
     self.error_handler = error_handler
@@ -52,9 +64,8 @@ class ScreenHandler:
     self.screen_h, self.screen_w = self.stdscr.getmaxyx()
 
     # Create the output window
-    self.output_window = curses.newpad(self.screen_h*150, self.screen_w)
-    self.output_window.move(self.screen_h - 4, 0)
-    self.output_window.scrollok(True)
+    
+    self.init_output_window()
 
     # Create the input window
     self.input_window = curses.newwin(3, self.screen_w, self.screen_h - 3, 0)
@@ -62,40 +73,69 @@ class ScreenHandler:
     self.input_window.keypad(True)
     self.refresh()
 
-  def append_output(self, output, color=0):
-    self.output_window.addstr(output, curses.color_pair(color))
+  def append_output(self, output, color=0, refresh=True):
+    self.output_content_h += 1
+    self.output_window.addstr("\n" + output.replace("\n", ""), curses.color_pair(color))
+    self.next_output_line += 1
     self.scroll_down()
-    self.refresh()
+    if refresh:
+      self.refresh()
 
-  def scroll_down(self):
-    self.output_scroll_pos += 1
-    if self.output_scroll_pos > self._max_scroll_value():
-      self.output_scroll_pos = self._max_scroll_value()
+  def set_scroll(self):
+    self.output_scroll_pos = self._max_scroll_value()
     
+  def scroll_down(self):
+    if not self.output_scroll_pos > self._max_scroll_value():
+      self.output_scroll_pos += 1
+        
   def scroll_up(self):
-    self.output_scroll_pos -= 1
-    if self.output_scroll_pos < 0:
-      self.output_scroll_pos = 0
+    if not self.output_scroll_pos < self.output_content_s_line:
+      self.output_scroll_pos -= 1
       
   def format_screen(self):
     self.screen_h, self.screen_w = self.stdscr.getmaxyx()
     
     self.input_window.resize(3, self.screen_w)
-    self.input_window.mvwin(self.screen_h - 4, 0)
+    self.input_window.mvwin(self.screen_h - 3, 0)
     
-    self.output_window.resize(self.screen_h*150, self.screen_w)
+    output_window_content = self.log_handler.get_log_as_strings()
+    self.reset_output_window()
+    
+    for log in output_window_content:
+      self.append_output(log['content'], log['color'], False)
     
     self.refresh()
 
+  def init_output_window(self):
+    self.output_view_h = self.screen_h - 4
+    self.output_window_h = self.screen_h*200
+    self.output_window = curses.newpad(self.output_window_h, self.screen_w)
+    self.output_content_s_line = self.output_view_h + 1
+    self.output_window.move(self.output_content_s_line, 0)
+    self.output_window.scrollok(True)
+    
   def refresh_output_window(self):
-    self.output_window.refresh(self.output_scroll_pos,0, 0,0, self.screen_h - 4, self.screen_w)
+    self.output_window.refresh(self.output_scroll_pos,0, 0,0, self.output_view_h, self.screen_w)
+
+  def reset_output_window(self):
+    self.next_output_line = 1
+    self.output_content_h = 0
+    self.output_scroll_pos = 0
+    self.output_view_h = self.screen_h - 4
+    # self.output_window_h = self.screen_h*200
+    self.output_window.clear()
+    self.output_window.resize(self.output_window_h, self.screen_w)
+    self.output_content_s_line = self.output_view_h + 1
+    self.output_window.move(self.output_content_s_line, 0)
 
   def reset_input_window(self):
     self.refresh()
 
-  def refresh(self):
+  def refresh(self, force=False):
     self.screen_lock.acquire()
     retry = False
+    if force:
+      self.stdscr.touchwin()
     try:
       self.input_window.clear()
       self.input_window.border()
@@ -114,15 +154,21 @@ class ScreenHandler:
 
   def clear_input_window(self):
     self.input_window.clear()
-    self.input_window.refresh()
+    self.refresh()
 
   def cleanup(self):
     curses.echo()
     curses.nocbreak()
     curses.endwin()
     
+  def prepare_for_attach(self):
+    self.format_screen()
+    
+  def prepare_for_detach(self):
+    pass
+    
   def _max_scroll_value(self):
-    return self.output_window.getyx()[0]
+    return self.output_content_s_line + self.output_content_h - self.output_view_h - 2
     
   #---- Input Decoding ----#
   def track_input(self):
@@ -143,9 +189,9 @@ class ScreenHandler:
         if len(self.current_input) == 0:
           continue
         command = ''.join(self.current_input)
-        self.input_handler.handle_command(command)
         self.reset_input_window()
         self.current_input = []
+        self.input_handler.handle_command(command)
       elif c == curses.KEY_RESIZE:
         try:
           self.format_screen()

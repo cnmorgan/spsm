@@ -1,6 +1,7 @@
 import subprocess
 
 def run(wrapper, *args):
+  wrapper.append_log("Refreshing!!")
   wrapper.screen_handler.refresh()
 
   
