@@ -168,7 +168,7 @@ class ScreenHandler:
     pass
     
   def _max_scroll_value(self):
-    return self.output_content_s_line + self.output_content_h - self.output_view_h - 2
+    return self.output_content_s_line + self.output_content_h - self.output_view_h - 1
     
   #---- Input Decoding ----#
   def track_input(self):

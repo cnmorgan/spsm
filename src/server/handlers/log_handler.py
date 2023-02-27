@@ -1,4 +1,6 @@
 import os
+import zipfile
+import glob
 import datetime
 
 from server.enums.log_levels import LogLevels
@@ -60,18 +62,56 @@ class LogHandler:
     base_file_path = os.path.join(logs_dir, file_name)
     latest_file_path = os.path.join(logs_dir, latest_file_name)
 
+    try:
+      if len(os.listdir(logs_dir)) > int(self.config['max_stored_logs']):
+        self.zip_logs()
+    except Exception as e:
+      self.append(f"{e}")
+
     if os.path.exists(latest_file_path):
-        i = 1
-        while True:
-          file_path = f"{base_file_path[:-4]}-{i}{base_file_path[-4:]}"
-          if os.path.exists(file_path):
-            i += 1
-          else:
-            os.rename(latest_file_path, file_path)
-            break
+      i = 1
+      while True:
+        file_path = f"{base_file_path[:-4]}-{i}{base_file_path[-4:]}"
+        if os.path.exists(file_path):
+          i += 1
+        else:
+          os.rename(latest_file_path, file_path)
+          break
       
     with open(latest_file_path, 'w') as f:
+      f.write('\n---------- START LOGS\n\n')
+      
       for log in self.log:
         f.write(self.log_to_string(log))
       
-      f.write('\n\n---------- END LOGS')
+      f.write('\n\n---------- END LOGS\n')
+  def zip_logs(self):
+    self.append("Archiving logs...", source='spsm/LogHandler')
+    cwd = os.getcwd()
+    os.chdir('spsm/logs')
+    file_paths = glob.glob('*.log')
+    file_paths.remove('latest.log')
+    
+    time = datetime.datetime.now()
+    formatted_time = time.strftime("[%Y-%m-%d]")
+
+    archive_dir = 'archive'
+    file_name = f'{formatted_time}.zip'
+    
+    file_path = os.path.join(archive_dir, file_name)
+    
+    i = 1
+    while True:
+      file_path = f"{file_path.split('.')[0]}-{i}.zip"
+      self.append(f"{file_path}")
+      if os.path.exists(file_path):
+        i += 1
+      else:      
+        with zipfile.ZipFile(file_path, 'w') as file:
+          for path in file_paths:
+            file.write(path)
+            os.remove(path)
+        break
+    
+    os.chdir(cwd)
+      

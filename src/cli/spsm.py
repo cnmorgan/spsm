@@ -12,7 +12,7 @@ def spsm():
 @click.option('-a', '--attach', is_flag=True, help='Immediately attach to the activated server')
 @click.option('-d', '--debug', is_flag=True, help='Toggles debug mode')
 def activate(attach, debug):
-    """Activates the Minecraft server and opens the console."""
+    """Activates the Minecraft server wrapper."""
     config = load_config()
     commander = ServerCommander(config)
     commander.activate_server(debug)
@@ -21,18 +21,24 @@ def activate(attach, debug):
 
 @spsm.command()
 def start():
+    """Starts the Minecraft Server
+    """
     config = load_config()
     commander = ServerCommander(config)
     commander.start_server()
 
 @spsm.command()
 def console():
+    """Opens an interactive console to interact with the server
+    """
     config = load_config()
     commander = ServerCommander(config)
     commander.attach_server()
 
 @spsm.command()
 def stop():
+    """Stops the Minecraft Server
+    """
     config = load_config()
     commander = ServerCommander(config)
     commander.stop_server()
@@ -40,6 +46,8 @@ def stop():
 
 @spsm.command()
 def restart():
+    """Restarts the Minecraft Server
+    """
     config = load_config()
     commander = ServerCommander(config)
     commander.restart_server()
@@ -48,6 +56,11 @@ def restart():
 @spsm.command()
 @click.argument('command')
 def send(command):
+    """Sends the given command to the Minecraft server Wrapper
+
+    Args:
+        command (string): Command to send
+    """
     config = load_config()
     commander = ServerCommander(config)
     commander.send_command(command)
@@ -55,9 +68,19 @@ def send(command):
 
 @spsm.command()
 def logs():
+    """Tail the latest log file.
+    """
     config = load_config()
     commander = ServerCommander(config)
-    Thread(target=commander.tail_logs).start()
+    commander.tail_logs()
+    
+@spsm.command()
+def status():
+    """Get the status of the server
+    """
+    config = load_config()
+    commander = ServerCommander(config)
+    commander.print_status()
 
 # ----- Jarfile Functions ----- #
 

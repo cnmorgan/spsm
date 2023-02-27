@@ -1,3 +1,4 @@
+import click
 import subprocess
 import os
 
@@ -51,6 +52,12 @@ class ServerCommander:
         else:
             print("Failed to activate server.")
 
+    def print_status(self):
+        if self.server_is_active():
+            click.secho("Server is Active", fg='green')
+        else:
+            click.secho("Server is not Active", fg='yellow')
+    
     def server_is_active(self):
         """
         Check if the server is currently active.
@@ -123,6 +130,7 @@ class ServerCommander:
         Tail the server's log file in the terminal.
         """
         log_file = os.path.join(
-            self.wrapper.config['server_directory'], self.wrapper.config['log_file'])
-        tail_command = f'tail -f {log_file}'
-        subprocess.call(tail_command, shell=True)
+            self.config['log_path'], "latest.log")
+        tail_command = f'tail -n 100 {log_file}'
+        subprocess.run(tail_command, shell=True)
+        print()

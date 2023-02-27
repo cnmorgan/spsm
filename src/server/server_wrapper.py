@@ -67,7 +67,7 @@ class ServerWrapper:
       self.cleanup()
 
   def deactivate(self):
-    self.append_log("Deactivating now...")
+    self.append_log("Deactivating now...", severity=LogLevels.WARN)
     if self.is_running():
       self.input_handler.handle_command("stop")
       self.server_process.wait()
@@ -133,7 +133,7 @@ class ServerWrapper:
             
           if source is None:
             source = 'Server'
-          self.append_log(message, source=source, severity=LogLevels[severity.upper()])
+          self.append_log(message.strip("\r\n\t "), source=source, severity=LogLevels[severity.upper()])
         for output in self.server_process.stderr:
           self.append_log(output, source="Server", severity=LogLevels.FATAL)
 
