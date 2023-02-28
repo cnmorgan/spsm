@@ -1,5 +1,5 @@
-from cmath import log
 import curses
+from math import ceil
 
 from threading import Lock
 import time
@@ -76,7 +76,8 @@ class ScreenHandler:
   def append_output(self, output, color=0, refresh=True):
     self.output_content_h += 1
     self.output_window.addstr("\n" + output.replace("\n", ""), curses.color_pair(color))
-    self.next_output_line += 1
+    scroll_amt = ceil(len(output)/self.screen_w)
+    self.next_output_line += scroll_amt
     self.scroll_down()
     if refresh:
       self.refresh()

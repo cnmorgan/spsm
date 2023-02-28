@@ -130,7 +130,7 @@ class ServerCommander:
         Tail the server's log file in the terminal.
         """
         log_file = os.path.join(
-            self.config['log_path'], "latest.log")
+            self.config['log_dir'], "latest.log")
         tail_command = f'tail -n 100 {log_file}'
         subprocess.run(tail_command, shell=True)
         print()

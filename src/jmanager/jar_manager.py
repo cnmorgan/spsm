@@ -7,6 +7,7 @@ import click
 from utils import config, io
 from jmanager.handlers import DownloadHandler, JarDataHandler
 from server.server_commander import ServerCommander
+from utils.constants import defaults
 
 class JarManager:
   def __init__(self):

@@ -15,7 +15,6 @@ def run(wrapper, *args):
                                             stdin=subprocess.PIPE,
                                             stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE,
-                                            cwd=wrapper.config['server_directory'],
                                             universal_newlines=True)
 
 def help(wrapper):

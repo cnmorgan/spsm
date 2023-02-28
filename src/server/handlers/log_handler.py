@@ -1,8 +1,9 @@
 import os
-import zipfile
+import shutil
 import glob
 import datetime
 
+from utils import io
 from server.enums.log_levels import LogLevels
 
 class LogHandler:
@@ -12,6 +13,8 @@ class LogHandler:
     self.log = []
     self.output_handler = None
     self.error_handler = None
+    
+    self.archive_latest()
   
   def connect_output(self, output_handler):
     self.output_handler = output_handler
@@ -31,6 +34,7 @@ class LogHandler:
     time = datetime.datetime.now()
     formatted_time = time.strftime("%H:%M:%S")
     log_val = [formatted_time, message, severity, source]
+    self.append_file(self.log_to_string(log_val))
     self.log.append(log_val)
     self.output_handler.queue_output(self.log_to_string(log_val), color=severity.value)
 
@@ -47,71 +51,54 @@ class LogHandler:
       
     return log
   
-  def dump_log(self):
-    logs_dir = 'spsm/logs'
+  def append_file(self, val: str) -> None:
+    log_dir = self.config['log_dir']
     
-    if not os.path.exists(logs_dir):
-      os.makedirs(logs_dir)
+    if not os.path.exists(log_dir):
+      os.makedirs(log_dir)
 
-    time = datetime.datetime.now()
-    formatted_time = time.strftime("[%Y-%m-%d]")
-
-    file_name = f'{formatted_time}.log'
-    latest_file_name = 'latest.log'
-
-    base_file_path = os.path.join(logs_dir, file_name)
-    latest_file_path = os.path.join(logs_dir, latest_file_name)
-
-    try:
-      if len(os.listdir(logs_dir)) > int(self.config['max_stored_logs']):
-        self.zip_logs()
-    except Exception as e:
-      self.append(f"{e}")
-
-    if os.path.exists(latest_file_path):
-      i = 1
-      while True:
-        file_path = f"{base_file_path[:-4]}-{i}{base_file_path[-4:]}"
-        if os.path.exists(file_path):
-          i += 1
-        else:
-          os.rename(latest_file_path, file_path)
-          break
+    file_path = os.path.join(log_dir, 'latest.log')
+    
+    with open(file_path, 'a') as f:
+      f.write(val)
       
-    with open(latest_file_path, 'w') as f:
+  
+  def dump_log(self):
+    log_dir = self.config['log_dir']
+    
+    if not os.path.exists(log_dir):
+      os.makedirs(log_dir)
+
+    file_path = os.path.join(log_dir, 'latest.log')
+
+    self.archive_latest()
+      
+    with open(file_path, 'w') as f:
       f.write('\n---------- START LOGS\n\n')
       
       for log in self.log:
         f.write(self.log_to_string(log))
       
       f.write('\n\n---------- END LOGS\n')
-  def zip_logs(self):
-    self.append("Archiving logs...", source='spsm/LogHandler')
-    cwd = os.getcwd()
-    os.chdir('spsm/logs')
-    file_paths = glob.glob('*.log')
-    file_paths.remove('latest.log')
+      
+  def archive_latest(self) -> None:
     
     time = datetime.datetime.now()
     formatted_time = time.strftime("[%Y-%m-%d]")
-
-    archive_dir = 'archive'
-    file_name = f'{formatted_time}.zip'
+    archive_filename = f'{formatted_time}.zip'
     
-    file_path = os.path.join(archive_dir, file_name)
+    src = os.path.join(self.config['log_dir'], 'latest.log')
+    base_dst = os.path.join(self.config['log_dir'], 'archive', archive_filename)
+
+    if not os.path.exists(src):
+      return
     
     i = 1
     while True:
-      file_path = f"{file_path.split('.')[0]}-{i}.zip"
-      self.append(f"{file_path}")
-      if os.path.exists(file_path):
+      dst = f"{base_dst.split('.')[0]}-{i}.zip"
+      if os.path.exists(dst):
         i += 1
       else:      
-        with zipfile.ZipFile(file_path, 'w') as file:
-          for path in file_paths:
-            file.write(path)
-            os.remove(path)
+        io.archive_file(src, dst)
         break
-    
-    os.chdir(cwd)
       

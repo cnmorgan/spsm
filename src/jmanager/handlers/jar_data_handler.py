@@ -2,6 +2,7 @@ import os
 import json
 
 from utils.config import load_config
+from utils.constants import defaults
 from utils import io
 
 class JarDataHandler():
@@ -57,17 +58,16 @@ class JarDataHandler():
     return self.jars_data['data'][name]
   
   def load_jar_data(self):
-    path = self.config['jar_data_path'] if 'jar_data_path' in self.config.keys() else './spsm/jardata'
-    filename = self.config['jar_data_filename'] if 'jar_data_filename' in self.config.keys() else 'jardata.json'
+    path = self.config['jardata_dir']
+    filename = self.config['jardata_filename']
     file_path = os.path.join(path, filename)
     if not os.path.exists(file_path):
       self.init_jar_data(path, filename)
-    
     return io.read_json_file(file_path)
     
   def save_jar_data(self):
-    path = self.config['jar_data_path'] if 'jar_data_path' in self.config.keys() else './spsm/jardata'
-    filename = self.config['jar_data_filename'] if 'jar_data_filename' in self.config.keys() else 'jardata.json'
+    path = self.config['jardata_dir']
+    filename = self.config['jardata_filename']
     file_path = os.path.join(path, filename)
     if os.path.exists(file_path):
       archive_path = f"{file_path[:-5]}-{self.jars_data['version']}{file_path[-5:]}"

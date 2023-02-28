@@ -60,7 +60,7 @@ class ServerWrapper:
     except Exception as e:
       self.error_handler.handle_fatal(e)
     finally:
-      self.log_handler.dump_log()
+      # self.log_handler.dump_log()
       self.active = False
       # for thread in self.threads.values():
       #   thread.join()
@@ -87,15 +87,16 @@ class ServerWrapper:
     self.threads['user_input_handling'] = Thread(target=self.screen_handler.track_input, daemon=True)
     
     for name, thread in self.threads.items():
-      self.append_log(f"Initializing thread {name}")
       thread.start()
+      time.sleep(0.01)
+      self.append_log(f"Initializing thread {name}")
   
   def read_fifo_input(self):
+    pipe = os.open(self.fifo_input_path, os.O_RDONLY | os.O_NONBLOCK)
     while self.active:
       try:
-        with os.fdopen(os.open(self.fifo_input_path, os.O_RDONLY | os.O_NONBLOCK)) as pipe:
-          data = pipe.read()
-          self.input_handler.queue_input(data)
+        data = os.read(pipe, 50)
+        self.input_handler.queue_input(data.decode("utf-8"))
       except OSError as e:
         if e.errno != errno.EAGAIN:
           raise

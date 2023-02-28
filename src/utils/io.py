@@ -1,4 +1,5 @@
 import os
+import zipfile
 import json
 from sys import platform
 
@@ -44,6 +45,28 @@ def remove_file(target_dir, filename):
     file_path = os.path.join(target_dir, filename)
     
     os.remove(file_path)
+
+def archive_file(src: str, dst: str) -> None:
+    """Create an archive of the file at src at dst
+
+    Args:
+        src (str): path to the source file directory
+        dst (str): path to destination archive file
+    """
+    if not os.path.exists(src):
+        raise FileNotFoundError(src)
+    if os.path.isdir(src):
+        raise IsADirectoryError(src)
+    
+    # cwd = os.getcwd()
+    # os.chdir(os.path.dirname(src))
+    filename = src.split('/')[-1]
+    
+    with zipfile.ZipFile(dst, 'w', zipfile.ZIP_DEFLATED) as file:
+        file.write(src, os.path.basename(src))
+        os.remove(src)
+
+    # os.chdir(cwd)
 
 def save_data_file(filename, content):
   # Get the user's home directory
