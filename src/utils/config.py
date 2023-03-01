@@ -14,7 +14,7 @@ class Config(Mapping):
     
     # Convert any dicts in data into Config objects for safe reading
     for k in self._data.keys():
-      if self._data[k] is dict:
+      if type(self._data[k]) is dict:
         self._data[k] = Config(self._data[k])
   
   def __getitem__(self, __key: str) -> T:
