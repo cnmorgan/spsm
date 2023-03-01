@@ -1,0 +1,1 @@
+from cli.initializer import initialize
