@@ -4,7 +4,9 @@ from server.server_commander import ServerCommander
 from jmanager import JarManager
 from utils.config import load_config
 
-@click.group()
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+
+@click.group(context_settings=CONTEXT_SETTINGS)
 def spsm():
     pass
 
@@ -16,15 +18,16 @@ def init():
     """
     cli.initialize()
     
-@spsm.command()
-@click.option('-j', '--jarfiles', default=False, help='list jarfiles')
-@click.option('-w', '--worlds', default=False, help='list worlds')
-def list(jarfiles, worlds):
-    """List resources based on the given flags
+@spsm.command(no_args_is_help=True)
+@click.argument('resource', type=click.Choice(['jars', 'worlds'], case_sensitive=False))
+def list(resource):
+    """Lists RESOURCE
     """
-    if jarfiles:
+    if resource.lower() == 'jars':
         jar_manager = JarManager()
         jar_manager.list_jars()
+    elif resource.lower() == 'worlds':
+        pass
 
 # ----- Server Functions ----- #
 
