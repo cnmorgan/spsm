@@ -14,7 +14,7 @@ def spsm():
 # ----- General Functions ----- #
 
 @spsm.command()
-def init():
+def init(short_help='Init current directory'):
     """Inititialize the current directory as an spsm managed server
     """
     cli.initialize()
@@ -22,7 +22,7 @@ def init():
 @spsm.command(no_args_is_help=True)
 @click.argument('resource', type=click.Choice(['jars', 'worlds'], case_sensitive=False))
 def list(resource):
-    """Lists RESOURCE
+    """Lists given resource
     """
     if resource.lower() == 'jars':
         jar_manager = JarManager()
@@ -31,7 +31,6 @@ def list(resource):
         pass
 
 # ----- Server Functions ----- #
-
 @spsm.group()
 def server():
     """Server related commands
@@ -167,6 +166,8 @@ def worlds():
     """World related commands
     """
     pass
+
+spsm_doc = click.CommandCollection('spsm', [spsm, jars, server])
 
 if __name__ == '__main__':
     spsm()

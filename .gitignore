@@ -6,4 +6,5 @@ mserver
 dist
 *.egg-info/
 *.egg
-client_secrets.json
+.vscode
+build/
