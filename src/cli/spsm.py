@@ -7,6 +7,7 @@ from utils.config import load_config
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.group(context_settings=CONTEXT_SETTINGS)
+@click.version_option(cli.__version__, "--version", "-v", message="Simple Python Server Manager, v%(version)s")
 def spsm():
     pass
 

@@ -1,6 +1,5 @@
 [project]
 name = "spsm"
-version = "0.1.0"
 description = "A simple minecraft server manager"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -26,23 +25,32 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3 :: Only",
 ]
+dynamic = ["version"]
 
 dependencies = [
-  "click"
+  "click >= 8.1",
+  "requests >= 2.28",
+  "tomli >= 2.0"
 ]
 
-# [project.urls]
-# "Homepage" = ""
+[project.optional-dependencies]
+dev = ["bump2version"]
+
+[project.urls]
+"Homepage" = "https://github.com/cnmorgan/spsm"
 # "Bug Reports" = ""
 # "Funding" = ""
 # "Say Thanks!" = ""
-# "Source" = ""
+"Source" = "https://github.com/cnmorgan/spsm"
 
 [project.scripts]  # Optional
 spsm = "cli.spsm:spsm"
 spsm_server = "server.server_wrapper:main"
 # [tool.setuptools]
 # package-dir = {"" = "src"}
+
+[tool.setuptools.dynamic]
+version = {attr = "cli.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
