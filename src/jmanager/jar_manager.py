@@ -79,7 +79,7 @@ class JarManager:
   def jar_present(self, jar_name):
     jar_data = self.jar_data_handler.fetch_jar_data(jar_name)
     target = jar_data['target']
-    return len(glob.glob(target + '/*.jar')) > 0
+    return len(glob.glob(target + '*.jar')) > 0
     
   def apply_jar_data(self):
     if ServerCommander(self.config).server_is_active():
