@@ -37,7 +37,7 @@ pip install spsm
 - Once the wrapper is activated use the `start` command to start the minecraft server
 - The wrapper command screen can be exited without closing the server with the command `exit` or with `ctrl+A ctrl+D`
 
-For more detailed usage see the [docs]() (Not yet implemented)
+For more detailed usage see the [docs](https://spsm.readthedocs.io/en/latest/)
 
 ## Support
 If you run into any issues feel free to [submit an issue](https://github.com/cnmorgan/spsm/issues/new) via Github
