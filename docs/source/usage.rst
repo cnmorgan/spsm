@@ -1,11 +1,8 @@
 Usage
 =====
 
-Getting Started
----------------
-
 Installation
-^^^^^^^^^^^^
+------------
 
 spsm can be installed using pip:
 
@@ -16,7 +13,7 @@ spsm can be installed using pip:
   Simple Python Server Manager, v0.1.2
 
 Quick Start
-^^^^^^^^^^^
+-----------
 
 1. Create a directory for your server
 
@@ -44,7 +41,8 @@ Quick Start
 
     (.venv) $ spsm server activate -a
 
-5. Once in the interactive wrapper terminal, use the command :code:`start` to start the server
+5. Once in the interactive wrapper terminal, use the command :code:`start` to start the server.
+:code:`help` can also be used to list available commands
 
   .. code-block:: console
 
@@ -59,3 +57,31 @@ Quick Start
 
   The server will typically not successfully start the first time as you will have to update the 
   :code:`eula.txt`
+
+6. The interactive terminal can be exited without terminating the server using the :code:`exit` command
+or by pressing :code:`CTRL+A CTRL+D`
+
+.. seealso:: 
+
+  The wrapper is managed using the :code:`screen` command.
+  see `here <https://www.gnu.org/software/screen/manual/screen.html>`_ for more information on screens.
+
+Commands
+--------
+
+.. click:: cli.spsm:spsm
+  :prog: spsm
+  :commands: init,list
+  :nested: full
+
+----
+
+.. click:: cli.spsm:server
+  :prog: spsm server
+  :nested: full
+
+----
+
+.. click:: cli.spsm:jars
+  :prog: spsm jars
+  :nested: full

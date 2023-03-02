@@ -16,6 +16,6 @@ Welcome to spsm's documentation!
 Contents
 --------
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    usage
