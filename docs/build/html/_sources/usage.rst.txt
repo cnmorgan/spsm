@@ -1,0 +1,11 @@
+Usage
+=====
+
+Installation
+------------
+
+First install using pip:
+
+.. code-block:: console
+
+  (.venv) $ pip install spsm
