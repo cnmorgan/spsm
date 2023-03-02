@@ -25,17 +25,18 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3 :: Only",
 ]
-dynamic = ["version"]
 
-dependencies = [
-  "click >= 8.1",
-  "sphinx-click",
-  "requests >= 2.28",
-  "tomli >= 2.0"
-]
+dynamic = ["version", "dependencies"]
+
+# dependencies = [
+#   "click >= 8.1",
+#   "sphinx-click",
+#   "requests >= 2.28",
+#   "tomli >= 2.0"
+# ]
 
 [project.optional-dependencies]
-dev = ["bump2version"]
+dev = ["bump2version", "pipreqs"]
 
 [project.urls]
 "Homepage" = "https://github.com/cnmorgan/spsm"
@@ -52,6 +53,7 @@ spsm_server = "server.server_wrapper:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "cli.__version__"}
+dependencies = {file = 'requirements.txt'}
 
 [tool.setuptools.packages.find]
 where = ["src"]
