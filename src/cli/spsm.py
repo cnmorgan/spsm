@@ -167,7 +167,5 @@ def worlds():
     """
     pass
 
-spsm_doc = click.CommandCollection('spsm', [spsm, jars, server])
-
 if __name__ == '__main__':
     spsm()
