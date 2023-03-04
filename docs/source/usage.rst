@@ -10,7 +10,7 @@ spsm can be installed using pip:
 
   (.venv) $ pip install spsm
   (.venv) $ spsm -v
-  Simple Python Server Manager, v0.1.2
+  Simple Python Server Manager, vX.Y.Z
 
 Quick Start
 -----------
