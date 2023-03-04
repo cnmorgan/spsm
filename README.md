@@ -44,10 +44,7 @@ If you run into any issues feel free to [submit an issue](https://github.com/cnm
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
+See the [contributing](https://spsm.readthedocs.io/en/contributing/) section of the documentation
 
 ## Versioning
 SPSM uses semantic version numbers of the following format:
@@ -56,9 +53,11 @@ SPSM uses semantic version numbers of the following format:
 
 where:
   - Major is bumped to indicate incompatibility ( i.e. commands that worked in 1.0.1 may not necessarily work in 2.0.0 )
+  - Minor is bumped to indicate new feature
+  - Patch is bumped to indicate bugfixes
 
 For more info on Semantic Version Numbers see: https://semver.org/
 
 ## License
 
-[GPL3](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
